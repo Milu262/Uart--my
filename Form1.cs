@@ -49,7 +49,7 @@ namespace 串口助手__my
             if(!radioButton4.Checked)//接收模式为字符模式
             {
                 string str = serialPort1.ReadExisting();//读取数据
-                textBox1.AppendText(str);//显示数据
+                textBox1.AppendText(str+ Environment.NewLine);//显示数据
                 //以上代码无法显示中文
                 
                 //byte[] str = new byte[serialPort1.BytesToRead];//接收字节数组
@@ -67,6 +67,7 @@ namespace 串口助手__my
                     string data = Convert.ToString(buffer[i], 16).ToUpper();
                     textBox1.AppendText("0X"+(data.Length == 1 ? "0" + data : data)+" ");
                 }
+                textBox1.AppendText(Environment.NewLine);//换行
                 //textBox1.AppendText(BitConverter.ToString(buffer));//显示数据
 
                 //以下方法为教程内方法
@@ -143,7 +144,14 @@ namespace 串口助手__my
             {
                 try
                 {
-                    
+                    byte[] data = new byte[(textBox2.Text.Length / 3)+1];//发送字节数组
+                    for(int i = 0; i < data.Length; i++)
+                    {
+                        // 检查剩余字符数量
+                        int byteLength = (textBox2.Text.Length - i * 3) >= 2 ? 2 : 1;
+                        data[i] = Convert.ToByte(textBox2.Text.Substring(i * 3, byteLength), 16);//将十六进制字符串转换为字节数
+                    }
+                    serialPort1.Write(data, 0, data.Length);//发送数据
                 }
                 catch (Exception ex)
                 {
@@ -165,8 +173,8 @@ namespace 串口助手__my
         public void UpdateTextBoxForHexInput(TextBox textBox)
         {
             // 订阅 TextBox 的 TextChanged 事件
-            textBox.TextChanged += (sender, e) =>
-            {
+            //textBox.TextChanged += (sender, e) =>
+            //{
                 // 获取当前 TextBox 的文本
                 string input = textBox.Text;
 
@@ -197,7 +205,12 @@ namespace 串口助手__my
 
                 // 设置光标位置到文本末尾
                 textBox.SelectionStart = textBox.Text.Length;
-            };
+            //};
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            textBox2.Clear();//清空发送区
         }
     }
 }
